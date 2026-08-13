@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ta">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>விஷ்ணு அருள் ஜோதிடம் | ஆன்லைன் ஜாதகம்</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f1e6;color:#2d1b0e;font-family:"Noto Sans Tamil","Latha",Arial,sans-serif}
+header{background:linear-gradient(135deg,#651b12,#a63c1d);color:#fff;text-align:center;padding:25px 15px}header h1{margin:0;font-size:28px}header p{margin:7px 0}
+.wrap{max-width:1000px;margin:24px auto;padding:0 14px}.card{background:#fff;border-radius:16px;padding:22px;margin-bottom:20px;box-shadow:0 5px 22px #00000014}
+h2{color:#7d2816;margin-top:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.full{grid-column:1/-1}
+label{font-weight:bold;display:block;margin-bottom:6px}input,select{width:100%;padding:12px;border:1px solid #ccbca8;border-radius:9px;font-size:16px}
+button{border:0;border-radius:9px;padding:12px 18px;font-size:16px;font-weight:bold;cursor:pointer}.primary{width:100%;margin-top:18px;background:#8e2d17;color:white}
+.search{background:#ead8bf;color:#4d2816}.row{display:flex;gap:8px}.note{padding:12px;background:#fff7e5;border-left:4px solid #c98a28;margin-top:15px}
+.result{display:none}table{width:100%;border-collapse:collapse}td,th{padding:9px;border-bottom:1px solid #eee;text-align:left}th{background:#faf4e9}
+.chart{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid #7d2816}.cell{min-height:95px;border:1px solid #bda78f;padding:7px;font-size:13px}.cell strong{display:block;color:#7d2816}.center{grid-column:2/4;grid-row:2/4;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:bold}
+.actions{display:flex;gap:10px;margin-top:16px}.call{background:#198754;color:white;flex:1}.wa{background:#128c7e;color:white;flex:1}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.chart{grid-template-columns:repeat(2,1fr)}.center{grid-column:1/3;grid-row:3/4}.cell{min-height:80px}}
+</style>
+</head>
+<body>
+<header><h1>விஷ்ணு அருள் ஜோதிடம்</h1><p>வேத ஜோதிட முறையில் ஆன்லைன் ஜாதகம்</p></header>
+<div class="wrap">
+<section class="card">
+<h2>ஜாதகம் கணிக்க</h2>
+<form id="form">
+<div class="grid">
+<div class="full"><label>பெயர் *</label><input id="name" required></div>
+<div><label>பிறந்த தேதி *</label><input id="dob" type="date" required></div>
+<div><label>பிறந்த நேரம் *</label><input id="time" type="time" required></div>
+<div><label>பாலினம் *</label><select id="gender" required><option value="">தேர்வு</option><option value="male">ஆண்</option><option value="female">பெண்</option><option value="other">மற்றவை</option></select></div>
+<div><label>நேர மண்டலம் *</label><select id="tz"><option value="5.5">India Standard Time (UTC +5:30)</option></select></div>
+<div class="full"><label>பிறந்த இடம் *</label><div class="row"><input id="place" placeholder="உதா: Salem, Tamil Nadu, India" required><button class="search" type="button" onclick="findPlace()">இடம் தேடு</button></div><small id="status"></small></div>
+<div><label>Latitude *</label><input id="lat" type="number" step="any" required></div>
+<div><label>Longitude *</label><input id="lon" type="number" step="any" required></div>
+</div>
+<div class="note"><b>குறிப்பு:</b> பிறந்த நேரம் மற்றும் பிறந்த இடத்தை சரியாக உள்ளிடவும்.</div>
+<button class="primary">ஜாதகம் பார்க்க</button>
+</form>
+</section>
+
+<section class="card result" id="result">
+<h2 id="title">ஜாதக முடிவுகள்</h2>
+<table id="summary"></table>
+<h2 style="margin-top:24px">ராசி கட்டம்</h2><div class="chart" id="rasiChart"></div>
+<h2 style="margin-top:24px">நவாம்சம் (D9)</h2><div class="chart" id="navChart"></div>
+<h2 style="margin-top:24px">நவகிரக நிலைகள்</h2><table id="planets"><tr><th>கிரகம்</th><th>ராசி</th><th>பாகை</th><th>நட்சத்திரம்</th></tr></table>
+<h2 style="margin-top:24px">12 பாவங்கள்</h2><table id="houses"><tr><th>பாவம்</th><th>ராசி</th></tr></table>
+<h2 style="margin-top:24px">விம்சோத்தரி தசா வரிசை</h2><table id="dasha"><tr><th>தசா அதிபதி</th><th>கால அளவு (ஆண்டுகள்)</th></tr></table>
+<div class="actions"><button class="call" onclick="location.href='tel:YOUR_PHONE_NUMBER'">📞 அழைக்க</button><button class="wa" onclick="window.open('https://wa.me/YOUR_WHATSAPP_NUMBER','_blank')">💬 WhatsApp</button></div>
+</section>
+</div>
+<footer style="text-align:center;padding:25px">© 2026 விஷ்ணு அருள் ஜோதிடம்</footer>
+<script>
+async function findPlace(){
+ const q=document.getElementById('place').value.trim(),s=document.getElementById('status');
+ if(!q){s.textContent='பிறந்த இடத்தை உள்ளிடவும்';return} s.textContent='தேடுகிறது...';
+ try{let r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(q),{headers:{Accept:'application/json'}});
+ let d=await r.json(); if(!d.length){s.textContent='இடம் கிடைக்கவில்லை';return}
+ lat.value=Number(d[0].lat).toFixed(6);lon.value=Number(d[0].lon).toFixed(6);s.textContent='இடம் கண்டறியப்பட்டது';
+ }catch(e){s.textContent='தானியங்கி தேடல் இல்லை; coordinates உள்ளிடவும்'}
+}
+function chart(el,data){
+ el.innerHTML='';
+ for(let i=0;i<12;i++){let d=document.createElement('div');d.className='cell';d.innerHTML='<strong>'+data[i].rasi+'</strong>'+(data[i].names||[]).join(', ');el.appendChild(d)}
+}
+form.onsubmit=async e=>{
+ e.preventDefault();
+ const input={name:name.value,dob:dob.value,time:time.value,gender:gender.value,place:place.value,latitude:Number(lat.value),longitude:Number(lon.value),timezone:Number(tz.value)};
+ if(!time.value){alert('பிறந்த நேரம் கட்டாயம்');return}
+ try{
+  let r=await fetch('/api/jathagam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)}),d=await r.json();
+  if(!r.ok||!d.ok)throw Error(d.error||'Calculation error');
+  result.style.display='block';
+  summary.innerHTML='<tr><td>பெயர்</td><td>'+d.input.name+'</td></tr><tr><td>லக்னம்</td><td>'+d.lagna.rasi+' — '+d.lagna.degree+'</td></tr><tr><td>ராசி</td><td>'+d.rasi+'</td></tr><tr><td>நட்சத்திரம்</td><td>'+d.nakshatra+' — பாதம் '+d.pada+'</td></tr><tr><td>நட்சத்திர அதிபதி</td><td>'+d.nakshatraLord+'</td></tr>';
+  const rc=d.rasiChart.map((names,i)=>({rasi:d.houses[i].rasi,names}));chart(rasiChart,rc);
+  const nv=Array.from({length:12},()=>[]);d.navamsa.forEach(p=>nv[p.rasiIndex].push(p.name));chart(navChart,nv.map((names,i)=>({rasi:d.houses[i].rasi,names})));
+  planets.innerHTML='<tr><th>கிரகம்</th><th>ராசி</th><th>பாகை</th><th>நட்சத்திரம்</th></tr>'+d.planets.map(p=>'<tr><td>'+p.name+(p.retrograde?' (வக்ரம்)':'')+'</td><td>'+p.rasi+'</td><td>'+p.degree+'</td><td>'+p.nakshatra+' / '+p.pada+'</td></tr>').join('');
+  houses.innerHTML='<tr><th>பாவம்</th><th>ராசி</th></tr>'+d.houses.map(h=>'<tr><td>'+h.house+'</td><td>'+h.rasi+'</td></tr>').join('');
+  dasha.innerHTML='<tr><th>தசா அதிபதி</th><th>கால அளவு (ஆண்டுகள்)</th></tr>'+d.dasha.map(x=>'<tr><td>'+x.lord+'</td><td>'+x.years+'</td></tr>').join('');
+  result.scrollIntoView({behavior:'smooth'});
+ }catch(err){alert('ஜாதக கணக்கீட்டு backend இணைக்கப்படவில்லை அல்லது error ஏற்பட்டது: '+err.message)}
+};
+</script>
+</body></html>
