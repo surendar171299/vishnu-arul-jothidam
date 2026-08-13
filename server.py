@@ -14,127 +14,200 @@ INDEX_FILE = BASE_DIR / "index.html"
 
 swe.set_sid_mode(swe.SIDM_LAHIRI)
 
-RASHIS = ["மேஷம்","ரிஷபம்","மிதுனம்","கடகம்","சிம்மம்","கன்னி","துலாம்","விருச்சிகம்","தனுசு","மகரம்","கும்பம்","மீனம்"]
-NAKSHATRAS = ["அஸ்வினி","பரணி","கார்த்திகை","ரோகிணி","மிருகசீரிஷம்","திருவாதிரை","புனர்பூசம்","பூசம்","ஆயில்யம்","மகம்","பூரம்","உத்திரம்","ஹஸ்தம்","சித்திரை","சுவாதி","விசாகம்","அனுஷம்","கேட்டை","மூலம்","பூராடம்","உத்திராடம்","திருவோணம்","அவிட்டம்","சதயம்","பூரட்டாதி","உத்திரட்டாதி","ரேவதி"]
-DASHA_LORDS = ["கேது","சுக்கிரன்","சூரியன்","சந்திரன்","செவ்வாய்","ராகு","குரு","சனி","புதன்"]
-DASHA_YEARS = {"கேது":7,"சுக்கிரன்":20,"சூரியன்":6,"சந்திரன்":10,"செவ்வாய்":7,"ராகு":18,"குரு":16,"சனி":19,"புதன்":17}
-PLANETS = [("சூரியன்",swe.SUN),("சந்திரன்",swe.MOON),("செவ்வாய்",swe.MARS),("புதன்",swe.MERCURY),("குரு",swe.JUPITER),("சுக்கிரன்",swe.VENUS),("சனி",swe.SATURN),("ராகு",swe.TRUE_NODE)]
+RASHIS = [
+    "மேஷம்", "ரிஷபம்", "மிதுனம்", "கடகம்", "சிம்மம்", "கன்னி",
+    "துலாம்", "விருச்சிகம்", "தனுசு", "மகரம்", "கும்பம்", "மீனம்"
+]
 
-def norm(x): return x % 360.0
-def rasi_index(lon): return int(norm(lon) // 30)
+NAKSHATRAS = [
+    "அஸ்வினி", "பரணி", "கார்த்திகை", "ரோகிணி", "மிருகசீரிஷம்",
+    "திருவாதிரை", "புனர்பூசம்", "பூசம்", "ஆயில்யம்", "மகம்",
+    "பூரம்", "உத்திரம்", "ஹஸ்தம்", "சித்திரை", "சுவாதி",
+    "விசாகம்", "அனுஷம்", "கேட்டை", "மூலம்", "பூராடம்",
+    "உத்திராடம்", "திருவோணம்", "அவிட்டம்", "சதயம்",
+    "பூரட்டாதி", "உத்திரட்டாதி", "ரேவதி"
+]
 
-def dms(x):
-    x = norm(x)
-    d = int(x)
-    m = int((x-d)*60)
-    s = round((((x-d)*60)-m)*60)
-    if s == 60: s=0; m+=1
-    if m == 60: m=0; d+=1
-    return f'{d}° {m}\\' {s}"'
+DASHA_LORDS = ["கேது", "சுக்கிரன்", "சூரியன்", "சந்திரன்", "செவ்வாய்", "ராகு", "குரு", "சனி", "புதன்"]
+DASHA_YEARS = {
+    "கேது": 7, "சுக்கிரன்": 20, "சூரியன்": 6, "சந்திரன்": 10,
+    "செவ்வாய்": 7, "ராகு": 18, "குரு": 16, "சனி": 19, "புதன்": 17
+}
 
-def nakshatra(lon):
-    span = 360.0/27.0
-    idx = min(26, int(norm(lon)//span))
-    pada = min(4, int(((norm(lon)-idx*span)/(span/4)))+1)
-    return idx, pada
+PLANETS = [
+    ("சூரியன்", swe.SUN),
+    ("சந்திரன்", swe.MOON),
+    ("செவ்வாய்", swe.MARS),
+    ("புதன்", swe.MERCURY),
+    ("குரு", swe.JUPITER),
+    ("சுக்கிரன்", swe.VENUS),
+    ("சனி", swe.SATURN),
+    ("ராகு", swe.TRUE_NODE)
+]
 
-def julian_day(date_s, time_s, tz_hours):
-    dt = datetime.datetime.fromisoformat(f"{date_s}T{time_s}")
-    utc = dt - datetime.timedelta(hours=float(tz_hours))
-    return swe.julday(utc.year, utc.month, utc.day,
-                      utc.hour + utc.minute/60 + utc.second/3600)
+def norm(value):
+    return value % 360.0
+
+def rasi_index(longitude):
+    return int(norm(longitude) // 30)
+
+def dms(value):
+    value = norm(value)
+    degrees = int(value)
+    minutes_float = (value - degrees) * 60
+    minutes = int(minutes_float)
+    seconds = round((minutes_float - minutes) * 60)
+    if seconds == 60:
+        seconds = 0
+        minutes += 1
+    if minutes == 60:
+        minutes = 0
+        degrees += 1
+    return f"{degrees}° {minutes}' {seconds}″"
+
+def get_nakshatra(longitude):
+    span = 360.0 / 27.0
+    index = min(26, int(norm(longitude) // span))
+    pada = min(4, int(((norm(longitude) - index * span) / (span / 4))) + 1)
+    return index, pada
+
+def julian_day(date_string, time_string, timezone_hours):
+    local_dt = datetime.datetime.fromisoformat(f"{date_string}T{time_string}")
+    utc_dt = local_dt - datetime.timedelta(hours=float(timezone_hours))
+    return swe.julday(
+        utc_dt.year,
+        utc_dt.month,
+        utc_dt.day,
+        utc_dt.hour + utc_dt.minute / 60 + utc_dt.second / 3600
+    )
 
 def planet_position(jd, planet):
     flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
-    xx, _ = swe.calc_ut(jd, planet, flags)
-    return norm(xx[0]), xx[3]
+    values, _ = swe.calc_ut(jd, planet, flags)
+    return norm(values[0]), values[3]
 
-def make_planet(name, lon, speed):
-    ni, pada = nakshatra(lon)
+def make_planet(name, longitude, speed):
+    nak_index, pada = get_nakshatra(longitude)
     return {
         "name": name,
-        "longitude": lon,
-        "degree": dms(lon),
-        "rasi": RASHIS[rasi_index(lon)],
-        "rasiIndex": rasi_index(lon),
-        "nakshatra": NAKSHATRAS[ni],
+        "longitude": longitude,
+        "degree": dms(longitude),
+        "rasi": RASHIS[rasi_index(longitude)],
+        "rasiIndex": rasi_index(longitude),
+        "nakshatra": NAKSHATRAS[nak_index],
         "pada": pada,
         "retrograde": speed < 0
     }
 
-def calculate(req):
-    jd = julian_day(req["dob"], req["time"], req.get("timezone", 5.5))
-    lat = float(req["latitude"])
-    lon = float(req["longitude"])
+def calculate_jathagam(req):
+    jd = julian_day(
+        req["dob"],
+        req["time"],
+        req.get("timezone", 5.5)
+    )
 
-    # Sidereal Lahiri ascendant.
-    _, ascmc = swe.houses_ex(jd, lat, lon, b"P", swe.FLG_SIDEREAL)
-    asc = norm(ascmc[0])
-    asc_rasi = rasi_index(asc)
+    latitude = float(req["latitude"])
+    longitude = float(req["longitude"])
+
+    _, ascmc = swe.houses_ex(
+        jd,
+        latitude,
+        longitude,
+        b"P",
+        swe.FLG_SIDEREAL
+    )
+
+    ascendant = norm(ascmc[0])
+    ascendant_rasi = rasi_index(ascendant)
 
     planets = []
+
     for name, planet in PLANETS:
-        p, speed = planet_position(jd, planet)
-        planets.append(make_planet(name, p, speed))
+        longitude_value, speed = planet_position(jd, planet)
+        planets.append(
+            make_planet(name, longitude_value, speed)
+        )
 
-    rahu_lon = planets[-1]["longitude"]
-    planets.append(make_planet("கேது", norm(rahu_lon + 180), -1))
+    rahu_longitude = planets[-1]["longitude"]
+    planets.append(
+        make_planet("கேது", norm(rahu_longitude + 180), -1)
+    )
 
-    moon = next(p for p in planets if p["name"] == "சந்திரன்")
-    ni, pada = nakshatra(moon["longitude"])
-    lord = DASHA_LORDS[ni % 9]
+    moon = next(
+        planet for planet in planets
+        if planet["name"] == "சந்திரன்"
+    )
 
-    # Whole-sign houses.
-    houses = [
-        {"house": i+1, "rasi": RASHIS[(asc_rasi+i)%12],
-         "rasiIndex": (asc_rasi+i)%12}
-        for i in range(12)
-    ]
+    nak_index, pada = get_nakshatra(moon["longitude"])
+    nakshatra_lord = DASHA_LORDS[nak_index % 9]
 
-    # South Indian sign chart.
-    chart = [[] for _ in range(12)]
-    for p in planets:
-        chart[p["rasiIndex"]].append(p["name"])
+    houses = []
+    for i in range(12):
+        houses.append({
+            "house": i + 1,
+            "rasi": RASHIS[(ascendant_rasi + i) % 12],
+            "rasiIndex": (ascendant_rasi + i) % 12
+        })
 
-    # Navamsa sign placements.
+    rasi_chart = [[] for _ in range(12)]
+    for planet in planets:
+        rasi_chart[planet["rasiIndex"]].append(planet["name"])
+
     navamsa = []
-    for p in planets:
-        sign = p["rasiIndex"]
-        deg = p["longitude"] % 30
-        part = min(8, int(deg / (30/9)))
-        if sign % 3 == 0:
-            start = sign
-        elif sign % 3 == 1:
-            start = (sign + 4) % 12
-        else:
-            start = (sign + 8) % 12
-        ns = (start + part) % 12
-        navamsa.append({"name": p["name"], "rasi": RASHIS[ns], "rasiIndex": ns})
 
-    # Dasha sequence from Moon's nakshatra.
-    span = 360/27
-    within = moon["longitude"] % span
-    elapsed = within/span
-    first_balance = DASHA_YEARS[lord] * (1-elapsed)
-    start_idx = DASHA_LORDS.index(lord)
+    for planet in planets:
+        sign = planet["rasiIndex"]
+        degree_in_sign = planet["longitude"] % 30
+        part = min(8, int(degree_in_sign / (30 / 9)))
+
+        if sign % 3 == 0:
+            start_sign = sign
+        elif sign % 3 == 1:
+            start_sign = (sign + 4) % 12
+        else:
+            start_sign = (sign + 8) % 12
+
+        navamsa_sign = (start_sign + part) % 12
+
+        navamsa.append({
+            "name": planet["name"],
+            "rasi": RASHIS[navamsa_sign],
+            "rasiIndex": navamsa_sign
+        })
+
+    nakshatra_span = 360.0 / 27.0
+    position_inside_nakshatra = moon["longitude"] % nakshatra_span
+    elapsed_fraction = position_inside_nakshatra / nakshatra_span
+
+    first_dasha_balance = DASHA_YEARS[nakshatra_lord] * (1 - elapsed_fraction)
+    first_index = DASHA_LORDS.index(nakshatra_lord)
+
     dasha = []
-    for k in range(9):
-        dl = DASHA_LORDS[(start_idx+k)%9]
-        years = first_balance if k == 0 else DASHA_YEARS[dl]
-        dasha.append({"lord": dl, "years": round(years, 3)})
+
+    for i in range(9):
+        lord = DASHA_LORDS[(first_index + i) % 9]
+        years = first_dasha_balance if i == 0 else DASHA_YEARS[lord]
+        dasha.append({
+            "lord": lord,
+            "years": round(years, 3)
+        })
 
     return {
         "ok": True,
         "input": req,
-        "lagna": {"longitude": asc, "degree": dms(asc),
-                  "rasi": RASHIS[asc_rasi], "rasiIndex": asc_rasi},
+        "lagna": {
+            "longitude": ascendant,
+            "degree": dms(ascendant),
+            "rasi": RASHIS[ascendant_rasi],
+            "rasiIndex": ascendant_rasi
+        },
         "rasi": moon["rasi"],
         "rasiIndex": moon["rasiIndex"],
-        "nakshatra": NAKSHATRAS[ni],
+        "nakshatra": NAKSHATRAS[nak_index],
         "pada": pada,
-        "nakshatraLord": lord,
+        "nakshatraLord": nakshatra_lord,
         "planets": planets,
-        "rasiChart": chart,
+        "rasiChart": rasi_chart,
         "navamsa": navamsa,
         "houses": houses,
         "dasha": dasha,
@@ -142,66 +215,149 @@ def calculate(req):
     }
 
 class Handler(BaseHTTPRequestHandler):
-    def send_bytes(self, code, content_type, data):
-        self.send_response(code)
+
+    def send_bytes(self, status, content_type, data):
+        self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS,HEAD")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
+
         if self.command != "HEAD":
             self.wfile.write(data)
 
-    def send_json(self, code, obj):
-        data = json.dumps(obj, ensure_ascii=False).encode("utf-8")
-        self.send_bytes(code, "application/json; charset=utf-8", data)
+    def send_json(self, status, data):
+        body = json.dumps(
+            data,
+            ensure_ascii=False
+        ).encode("utf-8")
+
+        self.send_bytes(
+            status,
+            "application/json; charset=utf-8",
+            body
+        )
 
     def do_OPTIONS(self):
         self.send_json(200, {"ok": True})
 
     def do_HEAD(self):
         path = urlparse(self.path).path
-        if path in ("/", "/index.html", "/api/health"):
-            self.send_bytes(200, "text/html; charset=utf-8", b"")
+
+        if path in ("/", "/index.html"):
+            self.send_bytes(
+                200,
+                "text/html; charset=utf-8",
+                b""
+            )
+        elif path == "/api/health":
+            self.send_bytes(
+                200,
+                "application/json; charset=utf-8",
+                b""
+            )
         else:
-            self.send_bytes(404, "text/plain; charset=utf-8", b"")
+            self.send_bytes(
+                404,
+                "text/plain; charset=utf-8",
+                b""
+            )
 
     def do_GET(self):
         path = urlparse(self.path).path
 
         if path == "/api/health":
-            return self.send_json(200, {
-                "ok": True,
-                "engine": "Swiss Ephemeris",
-                "ayanamsha": "Lahiri"
-            })
+            return self.send_json(
+                200,
+                {
+                    "ok": True,
+                    "engine": "Swiss Ephemeris",
+                    "ayanamsha": "Lahiri"
+                }
+            )
 
         if path in ("/", "/index.html"):
             try:
-                data = INDEX_FILE.read_bytes()
-                return self.send_bytes(200, "text/html; charset=utf-8", data)
-            except Exception as e:
-                return self.send_json(500, {"ok": False, "error": str(e)})
+                body = INDEX_FILE.read_bytes()
+                return self.send_bytes(
+                    200,
+                    "text/html; charset=utf-8",
+                    body
+                )
+            except Exception as error:
+                return self.send_json(
+                    500,
+                    {
+                        "ok": False,
+                        "error": str(error)
+                    }
+                )
 
-        return self.send_json(404, {"ok": False, "error": "Not found"})
+        return self.send_json(
+            404,
+            {
+                "ok": False,
+                "error": "Not found"
+            }
+        )
 
     def do_POST(self):
-        if urlparse(self.path).path != "/api/jathagam":
-            return self.send_json(404, {"ok": False, "error": "Not found"})
+        path = urlparse(self.path).path
+
+        if path != "/api/jathagam":
+            return self.send_json(
+                404,
+                {
+                    "ok": False,
+                    "error": "Not found"
+                }
+            )
 
         try:
-            length = int(self.headers.get("Content-Length", "0"))
-            req = json.loads(self.rfile.read(length))
+            content_length = int(
+                self.headers.get("Content-Length", "0")
+            )
 
-            for key in ("dob", "time", "latitude", "longitude"):
-                if req.get(key) in (None, ""):
-                    raise ValueError(f"Missing {key}")
+            raw_body = self.rfile.read(content_length)
+            request_data = json.loads(raw_body)
 
-            return self.send_json(200, calculate(req))
-        except Exception as e:
-            return self.send_json(400, {"ok": False, "error": str(e)})
+            required = [
+                "dob",
+                "time",
+                "latitude",
+                "longitude"
+            ]
+
+            for field in required:
+                if request_data.get(field) in (None, ""):
+                    raise ValueError(
+                        f"Missing {field}"
+                    )
+
+            result = calculate_jathagam(request_data)
+
+            return self.send_json(200, result)
+
+        except Exception as error:
+            return self.send_json(
+                400,
+                {
+                    "ok": False,
+                    "error": str(error)
+                }
+            )
 
 if __name__ == "__main__":
-    print(f"Starting Vishnu Arul Jothidam on {HOST}:{PORT}")
-    ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()
+    print(
+        f"Vishnu Arul Jothidam server listening on "
+        f"{HOST}:{PORT}"
+    )
+
+    server = ThreadingHTTPServer(
+        (HOST, PORT),
+        Handler
+    )
+
+    server.serve_forever()
